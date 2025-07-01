@@ -1,0 +1,11 @@
+/* css styles meant for Timer.tsx */
+
+.timer {
+    padding: '1rem';
+    border-radius: '0.75rem';
+    box-shadow: '0 4px 12px rgba(0, 0, 0, 0.1)';
+    background-color: '#fff';
+    max-width: '250px';
+    margin: '1rem auto';
+    text-align: 'center';
+}

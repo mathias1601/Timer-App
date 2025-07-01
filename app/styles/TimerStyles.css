@@ -1,0 +1,70 @@
+/* General app layout */
+.menuDiv {
+    padding: 20px;
+    background-color: #f4f4f4;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+h2,
+h3 {
+    color: #333;
+    margin-bottom: 8px;
+}
+
+input[type="text"],
+input[type="number"] {
+    padding: 8px;
+    margin: 4px 0;
+    width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+button {
+    padding: 8px 12px;
+    margin: 4px;
+    border: none;
+    background-color: #4caf50;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Container styles */
+.timeContainer {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 12px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.containerDiv {
+    background-color: #e9f7ef;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+.containerDiv h2 {
+    font-size: 1.2em;
+    color: #2e7d32;
+}
+
+/* Timer styles */
+.containerDiv h2+h2 {
+    font-size: 1.5em;
+    color: #000;
+}
+
+p {
+    font-size: 0.9em;
+    color: #555;
+}

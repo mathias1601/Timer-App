@@ -1,0 +1,122 @@
+'use client'
+import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+
+interface Props {
+	time: number,
+	isActive: boolean, 
+	onComplete: () => void, //Tells the TimerContainer when the timer has finished
+	name?: string, 
+	repetitions: number
+}
+
+const Timer = ({time, isActive, onComplete, name="", repetitions=1}: Props) => {
+
+	const [remaining, setRemaining] = useState<number>(time)
+	const originalTime = time //The initial amount of time when component was created
+
+	const [repeat, setRepeat] = useState<number>(repetitions)
+
+	//If the timer is finished
+	const [done, setDone] = useState<boolean>(false);
+
+	//Playing the alarm
+	const [alarmUrl, setAlarmUrl] = useState<string>('/sounds/alarm.mp3')
+	const alarmRef = useRef<HTMLAudioElement | null>(null);
+
+	//When timers are reset
+	useEffect(() => {
+		setRemaining(time);
+		setRepeat(repetitions);
+		setDone(false);
+	}, [time, repetitions]);
+
+	useEffect(() => {
+		alarmRef.current = new Audio(alarmUrl);
+		alarmRef.current.load();
+	}, [alarmUrl])
+
+	const playAlarm = () => {
+    if (alarmRef.current) {
+      alarmRef.current.play();
+    }
+  }
+
+	const stopAlarm = () => {
+    if (alarmRef.current) {
+      alarmRef.current.pause();
+      alarmRef.current.currentTime = 0;
+    }
+  }
+
+	const minutes = Math.floor(remaining / 60);
+  const seconds = remaining % 60;
+
+	useEffect(() => {
+    if (!isActive) return;
+
+		if (remaining <= 0 && repeat > 1) {
+			setRepeat(repeat - 1)
+			setRemaining(originalTime)
+		}
+
+    if (remaining <= 0 && repeat <= 1 && repeat > 0) {
+			setRepeat(repeat - 1)
+			setDone(true)
+			stopAlarm()
+			playAlarm()
+      onComplete();
+      return;
+    }
+
+		//Check this portion further
+    const interval = setInterval(() => {
+      setRemaining((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isActive, remaining]);
+
+	const timerStyleActive: CSSProperties = {
+      padding: '1rem',
+      borderRadius: '0.75rem',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      backgroundColor: 'white',
+      maxWidth: '250px',
+      margin: '1rem auto',
+      textAlign: 'center',
+  }
+
+	const timerStyleUnactive: CSSProperties = {
+      padding: '1rem',
+      borderRadius: '0.75rem',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      backgroundColor: 'red',
+      maxWidth: '250px',
+      margin: '1rem auto',
+      textAlign: 'center',
+  }
+	
+	const timerStyle = done ? timerStyleUnactive : timerStyleActive;
+
+  return (
+		<>
+			<div style={timerStyle}>
+				<h2>{name}</h2>
+				<h2>
+					{`${minutes}: 
+						${seconds < 10 ? `0${seconds}`: seconds}
+					`}
+				</h2>
+				<p>X {repeat}</p>
+			</div>
+		</>
+  )
+}
+
+export default Timer
