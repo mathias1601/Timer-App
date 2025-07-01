@@ -23,8 +23,7 @@ cd timer-app
 npm install
 # or
 yarn install
-
----
+```
 
 ## 🏃 Running the App
 
@@ -37,6 +36,7 @@ To start the app in development mode:
 npm run dev
 # or, if you're using yarn:
 yarn dev
+```
 
 3. Open your browser and go to:
 
