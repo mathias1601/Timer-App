@@ -1,15 +1,22 @@
 'use client'
 import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities"
+
 interface Props {
+	id: number,
 	time: number,
-	isActive: boolean, 
+	isActive: boolean,
 	onComplete: () => void, //Tells the TimerContainer when the timer has finished
-	name?: string, 
+	name?: string,
 	repetitions: number
 }
 
-const Timer = ({time, isActive, onComplete, name="", repetitions=1}: Props) => {
+const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1 }: Props) => {
+
+	//For drag-n-drop
+	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
 
 	const [remaining, setRemaining] = useState<number>(time)
 	const originalTime = time //The initial amount of time when component was created
@@ -36,87 +43,94 @@ const Timer = ({time, isActive, onComplete, name="", repetitions=1}: Props) => {
 	}, [alarmUrl])
 
 	const playAlarm = () => {
-    if (alarmRef.current) {
-      alarmRef.current.play();
-    }
-  }
+		if (alarmRef.current) {
+			alarmRef.current.play();
+		}
+	}
 
 	const stopAlarm = () => {
-    if (alarmRef.current) {
-      alarmRef.current.pause();
-      alarmRef.current.currentTime = 0;
-    }
-  }
+		if (alarmRef.current) {
+			alarmRef.current.pause();
+			alarmRef.current.currentTime = 0;
+		}
+	}
 
 	const minutes = Math.floor(remaining / 60);
-  const seconds = remaining % 60;
+	const seconds = remaining % 60;
 
 	useEffect(() => {
-    if (!isActive) return;
+		if (!isActive) return;
 
 		if (remaining <= 0 && repeat > 1) {
 			setRepeat(repeat - 1)
 			setRemaining(originalTime)
 		}
 
-    if (remaining <= 0 && repeat <= 1 && repeat > 0) {
+		if (remaining <= 0 && repeat <= 1 && repeat > 0) {
 			setRepeat(repeat - 1)
 			setDone(true)
 			stopAlarm()
 			playAlarm()
-      onComplete();
-      return;
-    }
+			onComplete();
+			return;
+		}
 
 		//Check this portion further
-    const interval = setInterval(() => {
-      setRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+		const interval = setInterval(() => {
+			setRemaining((prev) => {
+				if (prev <= 1) {
+					clearInterval(interval);
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1000);
 
-    return () => clearInterval(interval);
-  }, [isActive, remaining]);
+		return () => clearInterval(interval);
+	}, [isActive, remaining]);
 
 	const timerStyleActive: CSSProperties = {
-      padding: '1rem',
-      borderRadius: '0.75rem',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-      backgroundColor: 'white',
-      maxWidth: '250px',
-      margin: '1rem auto',
-      textAlign: 'center',
-  }
+		padding: '1rem',
+		borderRadius: '0.75rem',
+		boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+		backgroundColor: 'white',
+		maxWidth: '250px',
+		margin: '1rem auto',
+		textAlign: 'center',
+	}
 
 	const timerStyleUnactive: CSSProperties = {
-      padding: '1rem',
-      borderRadius: '0.75rem',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-      backgroundColor: 'red',
-      maxWidth: '250px',
-      margin: '1rem auto',
-      textAlign: 'center',
-  }
-	
+		padding: '1rem',
+		borderRadius: '0.75rem',
+		boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+		backgroundColor: 'red',
+		maxWidth: '250px',
+		margin: '1rem auto',
+		textAlign: 'center',
+	}
+
 	const timerStyle = done ? timerStyleUnactive : timerStyleActive;
 
-  return (
+	const dragNDropStyle = {
+		transition,
+		transform: CSS.Transform.toString(transform),
+	}
+
+	return (
 		<>
-			<div style={timerStyle}>
-				<h2>{name}</h2>
-				<h2>
-					{`${minutes}: 
-						${seconds < 10 ? `0${seconds}`: seconds}
-					`}
-				</h2>
-				<p>X {repeat}</p>
+			<div ref={setNodeRef} {...attributes} {...listeners} style={dragNDropStyle}>
+				<div style={timerStyle}>
+					<h2>{name}</h2>
+					<h2>
+						{`${minutes}: 
+							${seconds < 10 ? `0${seconds}` : seconds}
+						`}
+					</h2>
+					<p>X {repeat}</p>
+				</div>
 			</div>
 		</>
-  )
+	)
 }
 
 export default Timer
