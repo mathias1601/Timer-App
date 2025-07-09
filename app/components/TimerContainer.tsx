@@ -1,12 +1,14 @@
 'use client'
-import React, { ReactElement, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, ReactElement, useEffect, useRef, useState } from 'react'
 import Timer from './Timer';
 import '../styles/TimerStyles.css';
 import useClickOutside from '../hooks/useClickOutside';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { closestCorners, DndContext } from '@dnd-kit/core';
 
 type TimerData = {
-  id: number;
-  duration: number;
+	id: number;
+	duration: number;
 	name?: string;
 	hasFinished: boolean;
 	repetitions: number;
@@ -16,22 +18,22 @@ type TimerData = {
 };
 
 interface Props {
-	id: number, 
-  name: string;
-  whenOpen: (id: string) => void;
-  timers: TimerData[];
-  setTimers: (timers: TimerData[]) => void;
+	id: number,
+	name: string;
+	whenOpen: (id: string) => void;
+	timers: TimerData[];
+	setTimers: (timers: TimerData[]) => void;
 	changeName: (newName: string, id: number) => void;
 }
 
-const TimerContainer = ({id, name, whenOpen, timers = [], setTimers, changeName}: Props) => {
-	
+const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName }: Props) => {
+
 	const [currentTimerIndex, setCurrentTimerIndex] = useState<number>(-2);
 	const [lastActiveTimer, setLastActiveTimer] = useState<number>(-2);
 
 	//Props to add to the timer component
 	const [minutesToAdd, setMinutesToAdd] = useState<number>(0);
-  const [secondsToAdd, setSecondsToAdd] = useState<number>(0);
+	const [secondsToAdd, setSecondsToAdd] = useState<number>(0);
 	const [timerName, setTimerName] = useState<string>("");
 	const [repetitions, setRepetitions] = useState<number>(1);
 
@@ -48,22 +50,22 @@ const TimerContainer = ({id, name, whenOpen, timers = [], setTimers, changeName}
 	const [editingName, setEditingName] = useState<boolean>(false);
 
 	//How many times the container should repeat
-	const [originalRepetitions, setOriginalRepetitions] = useState<number>(1); 
+	const [originalRepetitions, setOriginalRepetitions] = useState<number>(1);
 	const [containerRepetition, setContainerRepetition] = useState<number>(1);
 
-  const addTimer = () => {
+	const addTimer = () => {
 		let timeToAdd = 60 * minutesToAdd + secondsToAdd
 
-  	setTimers([
-    	...timers,
-    	{ id: Date.now(), duration: timeToAdd, name: timerName, hasFinished: false, repetitions: repetitions, originalDuration: timeToAdd, originalRepetitions: repetitions }
-  	]);
+		setTimers([
+			...timers,
+			{ id: Date.now(), duration: timeToAdd, name: timerName, hasFinished: false, repetitions: repetitions, originalDuration: timeToAdd, originalRepetitions: repetitions }
+		]);
 	};
 
 	const timerComplete = () => {
 		setCurrentTimerIndex(lastActiveTimer + 1)
 		setLastActiveTimer(lastActiveTimer + 1)
-	
+
 		//If the timer_container has reached the end and needs to repeat
 		if (currentTimerIndex >= timers.length - 1 && containerRepetition > 1) {
 			console.log("check")
@@ -83,7 +85,7 @@ const TimerContainer = ({id, name, whenOpen, timers = [], setTimers, changeName}
 		else if (currentTimerIndex >= timers.length - 1) {
 			setCurrentTimerIndex(-2)
 			setLastActiveTimer(-2)
-		}	
+		}
 	}
 
 	const activateTimer = () => {
@@ -104,36 +106,40 @@ const TimerContainer = ({id, name, whenOpen, timers = [], setTimers, changeName}
 			let firstActiveTimer = false
 
 			while (index < timers.length && !firstActiveTimer) {
-			
+
 				if (!timers[index].hasFinished) {
 					setCurrentTimerIndex(lastActiveTimer)
 					setLastActiveTimer(index)
 					firstActiveTimer = true
 				}
 				index += 1
-			}		
+			}
 		}
 		console.log(currentTimerIndex)
 	}
 
-	const displayTimers = timers.map((time, index) => (
-    <div key={time.id}>
-			<Timer
-				time={time.duration}
-				isActive={index == currentTimerIndex}
-				onComplete={timerComplete}
-				name={time.name}
-				repetitions={time.repetitions}
-			/>
-			{ isPlaying || !editing ? null :
-				<button onClick={() => {
-  				setTimers(timers.filter(t => t.id !== time.id));
-				}}>
-  				Remove Timer
-				</button>
-			}	
-		</div>
-  ));
+	const displayTimers =
+		<SortableContext items={timers} strategy={verticalListSortingStrategy}>
+			{timers.map((time, index) => (
+				<div key={time.id}>
+					<Timer
+						id={time.id}
+						time={time.duration}
+						isActive={index == currentTimerIndex}
+						onComplete={timerComplete}
+						name={time.name}
+						repetitions={time.repetitions}
+					/>
+					{isPlaying || !editing ? null :
+						<button onClick={() => {
+							setTimers(timers.filter(t => t.id !== time.id));
+						}}>
+							Remove Timer
+						</button>
+					}
+				</div>
+			))}
+		</SortableContext>;
 
 	const nameRef = useRef<HTMLInputElement>(null);
 
@@ -141,21 +147,38 @@ const TimerContainer = ({id, name, whenOpen, timers = [], setTimers, changeName}
 		setEditingName(false)
 	})
 
+	const getTimerPos = (id: number) => {
+		return timers.findIndex(timer => timer.id == id)
+	}
+
+	const handleDragEnd = (event: { active: any; over: any; }) => {
+		const { active, over } = event
+
+		if (active.id == over.id) return;
+
+		const originalPos = getTimerPos(active.id)
+		const newPos = getTimerPos(over.id)
+
+		const updatedList: TimerData[] = arrayMove(timers, originalPos, newPos)
+
+		setTimers(updatedList)
+	}
+
 	if (editing) {
 		return (
 			<>
 				<div className='containerDiv'>
-					{editingName ? <input ref={nameRef} type="text" value={name} onChange={(e) => changeName(e.target.value, id)} /> : <h2 onClick={() => setEditingName(true)}>{name}</h2> }
-					
-					{visible ? 
+					{editingName ? <input ref={nameRef} type="text" value={name} onChange={(e) => changeName(e.target.value, id)} /> : <h2 onClick={() => setEditingName(true)}>{name}</h2>}
+
+					{visible ?
 						<div className='containerDiv'>
 							<div>
 								Repetitions: {originalRepetitions}
 							</div>
-							<input type="number" placeholder='container repetitions' onChange={(e) => setOriginalRepetitions((Number(e.target.value)))}/>
+							<input type="number" placeholder='container repetitions' onChange={(e) => setOriginalRepetitions((Number(e.target.value)))} />
 							<div>
 								<h4>Add optional name of timer</h4>
-								<input type="text" placeholder='optional name' onChange={(e) => setTimerName((e.target.value))}/>
+								<input type="text" placeholder='optional name' onChange={(e) => setTimerName((e.target.value))} />
 							</div>
 
 							<div>
@@ -173,7 +196,7 @@ const TimerContainer = ({id, name, whenOpen, timers = [], setTimers, changeName}
 											}}
 										/>
 									</div>
-									
+
 									<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 										<p>Seconds</p>
 										<input
@@ -205,12 +228,14 @@ const TimerContainer = ({id, name, whenOpen, timers = [], setTimers, changeName}
 								<button onClick={addTimer}>Add time</button>
 							</div>
 							<div>
-								{displayTimers}
+								<DndContext onDragEnd={handleDragEnd} collisionDetection={closestCorners}>
+									{displayTimers}
+								</DndContext>
 							</div>
-							{ isPlaying ? null : <button onClick={() => { setEditing(!editing), setContainerRepetition(originalRepetitions) }}>Exit editing</button>} 
+							{isPlaying ? null : <button onClick={() => { setEditing(!editing), setContainerRepetition(originalRepetitions) }}>Exit editing</button>}
 						</div>
-					: null}
-					{ isPlaying ? null :
+						: null}
+					{isPlaying ? null :
 						<button onClick={() => { setVisible(!visible), whenOpen(name) }}>Open/Close container</button>
 					}
 				</div>
@@ -218,26 +243,26 @@ const TimerContainer = ({id, name, whenOpen, timers = [], setTimers, changeName}
 		)
 	}
 
-  return (
-    <>
+	return (
+		<>
 			<div className='containerDiv'>
 				<h2>{name}</h2>
-				{visible ? 
+				{visible ?
 					<div className='containerDiv'>
 						X{containerRepetition}
 						<button onClick={activateTimer}>Start/Stop</button>
 						{displayTimers}
 
-						{ isPlaying ? null : <button onClick={() => { setEditing(!editing), setCurrentTimerIndex(-2), setLastActiveTimer(-2) }}>Edit</button>} 
+						{isPlaying ? null : <button onClick={() => { setEditing(!editing), setCurrentTimerIndex(-2), setLastActiveTimer(-2) }}>Edit</button>}
 					</div>
-				: null}
-				{ isPlaying ? null :
+					: null}
+				{isPlaying ? null :
 					<button onClick={() => { setVisible(!visible), whenOpen(name), setCurrentTimerIndex(-2), setLastActiveTimer(-2) }}>Open/Close container</button>
 				}
-			
+
 			</div>
 		</>
-  )
+	)
 }
 
 export default TimerContainer
