@@ -1,8 +1,9 @@
 'use client'
-import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useContext, useEffect, useRef, useState } from 'react'
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities"
+import { useAlarmSoundContext } from '../contexts/AlarmSoundContext';
 
 interface Props {
 	id: number,
@@ -27,7 +28,7 @@ const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1 }: P
 	const [done, setDone] = useState<boolean>(false);
 
 	//Playing the alarm
-	const [alarmUrl, setAlarmUrl] = useState<string>('/sounds/alarm.mp3')
+	const alarmContext = useAlarmSoundContext();
 	const alarmRef = useRef<HTMLAudioElement | null>(null);
 
 	//When timers are reset
@@ -38,9 +39,9 @@ const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1 }: P
 	}, [time, repetitions]);
 
 	useEffect(() => {
-		alarmRef.current = new Audio(alarmUrl);
+		alarmRef.current = new Audio(alarmContext.alarmUrl);
 		alarmRef.current.load();
-	}, [alarmUrl])
+	}, [alarmContext.alarmUrl])
 
 	const playAlarm = () => {
 		if (alarmRef.current) {

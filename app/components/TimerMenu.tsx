@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import TimerContainer from './TimerContainer';
 import '../styles/TimerStyles.css';
-import CONTAINER_PRESETS from '../TimerPresets/TimerPresets';
-import OverlayMenu from './OverlayMenu';
-
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { closestCenter, closestCorners, DndContext } from '@dnd-kit/core';
+import CONTAINER_PRESETS from '../presets/TimerPresets';
+import PresetMenu from './PresetMenu';
+import SettingsMenu from './SettingsMenu';
 
 type TimerData = {
 	id: number;
@@ -25,7 +23,7 @@ type TimeContainer = {
 }
 
 const TimerMenu = () => {
-
+	console.log("TimerMenu mount")
 	const [containerName, setContainerName] = useState<string>("");
 	const [containerList, setContainerList] = useState<TimeContainer[]>([]);
 
@@ -107,7 +105,8 @@ const TimerMenu = () => {
 			<h3>Create a time-set</h3>
 			<input type="text" placeholder='name' onChange={(e) => setContainerName((e.target.value))} />
 			<button onClick={addContainer}>Add container</button>
-			<OverlayMenu addPreset={addPreset} listOfPresets={presets} />
+			<PresetMenu addPreset={addPreset} listOfPresets={presets} />
+			<SettingsMenu />
 			<div>
 				{displayContainers}
 			</div>
