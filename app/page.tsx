@@ -8,11 +8,10 @@ export default function Home() {
 
 
   return (
-    <div className="bg-white text-black dark:bg-gray-900 dark:text-white p-4 rounded-lg shadow-md">
+    <div>
       <h1>PomoFlex</h1>
       <AlarmSoundContextProvider>
         <TimerMenu />
-        <ToggleTheme />
       </AlarmSoundContextProvider>
     </div>
   )
