@@ -29,7 +29,7 @@ const TimerMenu = () => {
 
 	//Checks whether a container is open or not, if open, then all other containers should not be visible
 	const [openContainer, setOpenContainer] = useState<boolean>(false);
-	const [currentOpenContainer, setCurrentOpenContainer] = useState<string>("");
+	const [currentOpenContainer, setCurrentOpenContainer] = useState<number>(0);
 
 	const presets = CONTAINER_PRESETS
 
@@ -46,8 +46,8 @@ const TimerMenu = () => {
 		localStorage.setItem('containerList', JSON.stringify(containerList));
 	}, [containerList]);
 
-	const whenOpen = (name: string) => {
-		setCurrentOpenContainer(name)
+	const whenOpen = (id: number) => {
+		setCurrentOpenContainer(id)
 		setOpenContainer(!openContainer)
 	}
 
@@ -60,7 +60,7 @@ const TimerMenu = () => {
 
 	const displayContainers =
 		containerList.map((container) => (
-			(container.name != currentOpenContainer && openContainer) ? null
+			(container.id != currentOpenContainer && openContainer) ? null
 				:
 				<div className='timeContainer' key={container.id}>
 					<TimerContainer
@@ -80,6 +80,11 @@ const TimerMenu = () => {
 						changeName={changeName}
 					/>
 					<button onClick={() => {
+						if (container.id == currentOpenContainer) {
+							setOpenContainer(false)
+							setCurrentOpenContainer(0)
+						}
+
 						setContainerList(prev => prev.filter(t => t.id !== container.id));
 					}}>
 						Remove Container

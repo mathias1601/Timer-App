@@ -20,7 +20,7 @@ type TimerData = {
 interface Props {
 	id: number,
 	name: string;
-	whenOpen: (id: string) => void;
+	whenOpen: (id: number) => void;
 	timers: TimerData[];
 	setTimers: (timers: TimerData[]) => void;
 	changeName: (newName: string, id: number) => void;
@@ -236,7 +236,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 						</div>
 						: null}
 					{isPlaying ? null :
-						<button onClick={() => { setVisible(!visible), whenOpen(name) }}>Open/Close container</button>
+						<button onClick={() => { setVisible(!visible), whenOpen(id) }}>Open/Close container</button>
 					}
 				</div>
 			</>
@@ -257,7 +257,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 					</div>
 					: null}
 				{isPlaying ? null :
-					<button onClick={() => { setVisible(!visible), whenOpen(name), setCurrentTimerIndex(-2), setLastActiveTimer(-2) }}>Open/Close container</button>
+					<button onClick={() => { setVisible(!visible), whenOpen(id), setCurrentTimerIndex(-2), setLastActiveTimer(-2) }}>Open/Close container</button>
 				}
 
 			</div>
