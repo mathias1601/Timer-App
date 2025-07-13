@@ -7,31 +7,31 @@ type TimerData = {
   duration: number;
   name?: string;
   hasFinished: boolean;
-	repetitions: number;
+  repetitions: number;
 
-	originalDuration: number;
-	originalRepetitions: number;
+  originalDuration: number;
+  originalRepetitions: number;
 };
 
 type TimeContainer = {
-	name: string,
-	open: boolean,
-	timers: TimerData[];
+  name: string,
+  open: boolean,
+  timers: TimerData[];
 }
 
 
 interface Props {
-	addPreset: (preset:any) => void,
-	listOfPresets: TimeContainer[]
+  addPreset: (preset: any) => void,
+  listOfPresets: TimeContainer[]
 }
 
-const OverlayMenu = ( { addPreset, listOfPresets }: Props) => {
+const PresetMenu = ({ addPreset, listOfPresets }: Props) => {
 
-	const displayPresets = listOfPresets.map((preset: TimeContainer, index) => (
-		<div key={index}>
-			<button onClick={() => addPreset(preset)}>{preset.name}</button>
-		</div>
-	))
+  const displayPresets = listOfPresets.map((preset: TimeContainer, index) => (
+    <div key={index}>
+      <button onClick={() => addPreset(preset)}>{preset.name}</button>
+    </div>
+  ))
 
 
   return (
@@ -43,13 +43,13 @@ const OverlayMenu = ( { addPreset, listOfPresets }: Props) => {
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay style={overlayStyle}/>
+        <Dialog.Overlay style={overlayStyle} />
         <Dialog.Content style={contentStyle}>
           <Dialog.Title>Presets</Dialog.Title>
           <Dialog.Description>
             Choose a preset
           </Dialog.Description>
-					{displayPresets}
+          {displayPresets}
           <Dialog.Close asChild>
             <button style={closeButtonStyle}>
               <Cross2Icon /> Close
@@ -61,9 +61,9 @@ const OverlayMenu = ( { addPreset, listOfPresets }: Props) => {
   );
 };
 
-export default OverlayMenu;
+export default PresetMenu;
 
-// Inline styles (you can replace with your CSS or Tailwind classes)
+
 const overlayStyle: CSSProperties = {
   backgroundColor: 'rgba(0,0,0,0.5)',
   position: 'fixed',
@@ -86,15 +86,6 @@ const contentStyle: CSSProperties = {
 const triggerStyle = {
   padding: '8px 16px',
   backgroundColor: '#4f46e5',
-  color: 'white',
-  border: 'none',
-  borderRadius: '4px'
-};
-
-const buttonStyle = {
-  padding: '8px 12px',
-  marginTop: '16px',
-  backgroundColor: '#10b981',
   color: 'white',
   border: 'none',
   borderRadius: '4px'

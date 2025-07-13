@@ -1,5 +1,5 @@
 'use client'
-import React, { CSSProperties, ReactElement, useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import Timer from './Timer';
 import '../styles/TimerStyles.css';
 import useClickOutside from '../hooks/useClickOutside';
