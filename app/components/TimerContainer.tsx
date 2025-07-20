@@ -6,16 +6,7 @@ import useClickOutside from '../hooks/useClickOutside';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { closestCorners, DndContext } from '@dnd-kit/core';
 
-type TimerData = {
-	id: number;
-	duration: number;
-	name?: string;
-	hasFinished: boolean;
-	repetitions: number;
-
-	originalDuration: number;
-	originalRepetitions: number;
-};
+import { TimerData } from '../types/TimerTypes';
 
 interface Props {
 	id: number,

@@ -2,22 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import type { CSSProperties } from "react";
 
-type TimerData = {
-  id: number;
-  duration: number;
-  name?: string;
-  hasFinished: boolean;
-  repetitions: number;
-
-  originalDuration: number;
-  originalRepetitions: number;
-};
-
-type TimeContainer = {
-  name: string,
-  open: boolean,
-  timers: TimerData[];
-}
+import type { TimeContainer } from '../types/TimerTypes';
 
 
 interface Props {

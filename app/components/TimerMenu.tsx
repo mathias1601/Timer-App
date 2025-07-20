@@ -5,22 +5,7 @@ import CONTAINER_PRESETS from '../presets/TimerPresets';
 import PresetMenu from './PresetMenu';
 import SettingsMenu from './SettingsMenu';
 
-type TimerData = {
-	id: number;
-	duration: number;
-	name?: string;
-	hasFinished: boolean;
-	repetitions: number;
-
-	originalDuration: number;
-	originalRepetitions: number;
-};
-
-type TimeContainer = {
-	id: number,
-	name: string,
-	timers: TimerData[];
-}
+import { TimeContainer } from '../types/TimerTypes';
 
 const TimerMenu = () => {
 	console.log("TimerMenu mount")
